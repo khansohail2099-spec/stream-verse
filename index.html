@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamVerse - Watch & Earn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Animations */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        /* Loader */
+        .loader { border: 3px solid #333; border-top: 3px solid #dc2626; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Ensure Navbar and Bottom Nav are ALWAYS above ads if possible */
+        nav, .fixed.bottom-0 { z-index: 9999 !important; }
+        
+        /* Ad Wrapper to prevent layout breaking */
+        .ad-banner-wrapper {
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+            background: #111;
+            padding: 5px 0;
+            min-height: 90px;
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen pb-20 overflow-x-hidden">
+
+    <!-- Top Navbar -->
+    <nav class="sticky top-0 bg-black/90 backdrop-blur-md border-b border-gray-800 transition-all">
+        <div class="flex justify-between items-center p-4">
+            
+            <!-- Logo -->
+            <div id="navLogo" class="text-xl font-bold tracking-widest uppercase transition-all duration-300">
+                <span class="text-red-600">Stream</span>verse
+            </div>
+
+            <!-- Search Bar -->
+            <div id="searchContainer" class="hidden flex-1 mx-4 relative fade-in">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-500 text-sm"></i>
+                <input type="text" id="searchInput" placeholder="Search..." 
+                    class="w-full bg-gray-900 border border-gray-700 rounded-full py-1.5 pl-9 pr-8 text-sm focus:outline-none focus:border-red-600 transition text-white">
+                <button id="closeSearchBtn" class="absolute right-3 top-2 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Icons -->
+            <div id="navIcons" class="flex gap-4 text-gray-300 items-center">
+                <button id="openSearchBtn" class="hover:text-white transition">
+                    <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                </button>
+                <button onclick="openProfile()" class="w-7 h-7 bg-gray-800 rounded-full flex items-center justify-center border border-gray-600 hover:border-white transition overflow-hidden">
+                    <img src="https://ui-avatars.com/api/?name=User&background=dc2626&color=fff" alt="Profile">
+                </button>
+            </div>
+        </div>
+
+        <!-- Category Filter Chips -->
+        <div id="categoryFilter" class="flex gap-3 overflow-x-auto px-4 pb-3 no-scrollbar border-b border-gray-900 bg-black/95">
+            <button onclick="filterContent(this, 'All')" class="cat-chip active bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition">All</button>
+            <button onclick="filterContent(this, 'Webseries')" class="cat-chip bg-gray-800 text-gray-300 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap hover:bg-gray-700 transition">Webseries</button>
+            <button onclick="filterContent(this, 'Bollywood')" class="cat-chip bg-gray-800 text-gray-300 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap hover:bg-gray-700 transition">Bollywood</button>
+            <button onclick="filterContent(this, 'Hollywood')" class="cat-chip bg-gray-800 text-gray-300 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap hover:bg-gray-700 transition">Hollywood</button>
+            <button onclick="filterContent(this, '18+')" class="cat-chip bg-gray-800 text-red-400 border border-red-900/50 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap hover:bg-red-900/20 transition">18+ Only</button>
+        </div>
+    </nav>
+
+    <!-- === 1. HOME VIEW === -->
+    <div id="viewHome" class="view-section container mx-auto px-4 mt-4 fade-in">
+        
+        <!-- AD 1: 728x90 Banner -->
+        <div class="ad-banner-wrapper rounded-lg border border-gray-800">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : 'b4457942a63e691b166fad379a531c3d',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/b4457942a63e691b166fad379a531c3d/invoke.js"></script>
+        </div>
+
+        <!-- Hero Section -->
+        <div id="heroSection" class="relative w-full h-56 md:h-80 rounded-xl overflow-hidden mb-8 shadow-2xl hidden cursor-pointer group border border-gray-800" onclick="playFeatured()">
+            <img id="heroImg" src="" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700">
+            <div class="absolute bottom-0 left-0 p-4 bg-gradient-to-t from-black via-transparent to-transparent w-full">
+                <span class="bg-red-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase mb-2 inline-block">Featured</span>
+                <h1 id="heroTitle" class="text-2xl font-bold text-white drop-shadow-md">Loading...</h1>
+                <p class="text-gray-300 text-xs mt-1 mb-3">Watch exclusively on StreamVerse.</p>
+                <button class="bg-white text-black px-4 py-2 rounded font-bold text-xs flex items-center gap-2 hover:bg-gray-200 transition">
+                    <i class="fa-solid fa-play"></i> Watch Now
+                </button>
+            </div>
+        </div>
+
+        <h2 class="text-lg font-bold mb-4 border-l-4 border-red-600 pl-3">Trending Now</h2>
+        <div id="contentGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-10">
+            <div class="col-span-full py-10">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === 2. DOWNLOADS VIEW === -->
+    <div id="viewDownloads" class="view-section hidden container mx-auto px-4 mt-8 fade-in text-center">
+        <div class="bg-gray-900 p-8 rounded-xl border border-gray-800">
+            <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-download text-3xl text-gray-500"></i>
+            </div>
+            <h2 class="text-xl font-bold mb-2">No Downloads Yet</h2>
+            <p class="text-gray-500 text-sm mb-6">Movies you download will appear here for offline viewing.</p>
+            <button onclick="switchTab('home')" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded text-sm font-bold transition">
+                Browse Content
+            </button>
+        </div>
+    </div>
+
+    <!-- === 3. SETTINGS VIEW === -->
+    <div id="viewSettings" class="view-section hidden container mx-auto px-4 mt-4 fade-in">
+        <h2 class="text-2xl font-bold mb-6 px-2">Settings</h2>
+        <div class="space-y-4">
+            <div class="bg-gray-900 rounded-lg p-4 flex items-center gap-4 border border-gray-800">
+                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center font-bold text-lg">U</div>
+                <div>
+                    <h3 class="font-bold">Guest User</h3>
+                    <p class="text-xs text-gray-400">Free Account</p>
+                </div>
+            </div>
+            <div class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
+                <div class="p-4 flex justify-between items-center border-b border-gray-800">
+                    <span class="text-sm"><i class="fa-solid fa-wifi w-6 text-gray-400"></i> Data Saver</span>
+                    <i class="fa-solid fa-toggle-on text-green-500 text-xl cursor-pointer"></i>
+                </div>
+            </div>
+            <div class="text-center text-xs text-gray-600 mt-8">StreamVerse v2.3</div>
+        </div>
+    </div>
+
+    <!-- === PROFILE MODAL === -->
+    <div id="profileModal" class="fixed inset-0 bg-black/80 z-[60] hidden flex-col justify-end fade-in" onclick="if(event.target === this) closeProfile()">
+        <div class="bg-[#111] rounded-t-2xl p-6 slide-up border-t border-gray-800">
+            <div class="w-12 h-1 bg-gray-700 rounded-full mx-auto mb-6"></div>
+            <div class="flex items-center gap-4 mb-6">
+                <img src="https://ui-avatars.com/api/?name=User&background=dc2626&color=fff&size=128" class="w-16 h-16 rounded-full">
+                <div>
+                    <h2 class="text-xl font-bold">Streamer</h2>
+                </div>
+            </div>
+            <button onclick="closeProfile()" class="w-full bg-gray-800 text-white py-3 rounded font-bold mb-2">Close</button>
+        </div>
+    </div>
+
+    <!-- === VIDEO PLAYER MODAL === -->
+    <div id="videoModal" class="fixed inset-0 bg-black z-[70] hidden flex-col justify-center items-center">
+        <button onclick="closePlayer()" class="absolute top-4 right-4 text-white text-2xl z-50 hover:text-red-500 bg-black/50 rounded-full w-10 h-10 flex items-center justify-center cursor-pointer">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <!-- Ad Container -->
+        <div id="adContainer" class="hidden absolute inset-0 bg-black/95 z-40 flex flex-col items-center justify-center text-center">
+            <div class="text-yellow-500 text-sm mb-4 font-bold tracking-widest uppercase">Sponsored Advertisement</div>
+            
+            <!-- AD 2: Native Container Ad -->
+            <div class="bg-white p-2 rounded max-w-[90%] overflow-hidden">
+                <script async="async" data-cfasync="false" src="//pl28191148.effectivegatecpm.com/6b4bf9ba798b54640fc50410686f93d7/invoke.js"></script>
+                <div id="container-6b4bf9ba798b54640fc50410686f93d7"></div>
+            </div>
+
+            <!-- Skip Button -->
+            <button onclick="skipAd()" id="skipBtn" class="mt-6 bg-red-600 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-red-700 transition hidden cursor-pointer z-50">
+                Skip to Video <i class="fa-solid fa-forward ml-2"></i>
+            </button>
+            <p id="adTimerText" class="text-gray-400 text-xs mt-4">Video starts in <span id="adCount">5</span>s</p>
+        </div>
+
+        <!-- Player Container -->
+        <div class="w-full max-w-5xl aspect-video bg-black relative flex items-center justify-center" id="playerWrapper"></div>
+    </div>
+
+    <!-- === BOTTOM NAVIGATION === -->
+    <div class="fixed bottom-0 w-full bg-[#0f0f0f] border-t border-gray-800 flex justify-around py-2 z-50 pb-safe">
+        <div onclick="switchTab('home')" class="nav-btn active flex flex-col items-center text-red-500 cursor-pointer w-full py-2 group" id="btn-home">
+            <i class="fa-solid fa-house text-lg mb-1 group-hover:scale-110 transition"></i>
+            <span class="text-[10px]">Home</span>
+        </div>
+        <div onclick="switchTab('downloads')" class="nav-btn flex flex-col items-center text-gray-500 hover:text-white cursor-pointer w-full py-2 group" id="btn-downloads">
+            <i class="fa-solid fa-download text-lg mb-1 group-hover:scale-110 transition"></i>
+            <span class="text-[10px]">Downloads</span>
+        </div>
+        <div onclick="switchTab('settings')" class="nav-btn flex flex-col items-center text-gray-500 hover:text-white cursor-pointer w-full py-2 group" id="btn-settings">
+            <i class="fa-solid fa-gear text-lg mb-1 group-hover:scale-110 transition"></i>
+            <span class="text-[10px]">Settings</span>
+        </div>
+    </div>
+
+    <!-- ADS 3 & 4 (Footer Scripts) -->
+    <script type="text/javascript" src="//pl28191149.effectivegatecpm.com/69/6f/c9/696fc9362d213ad97a6e549507572c3d.js"></script>
+    <script type="text/javascript" src="//pl28204232.effectivegatecpm.com/a9/be/56/a9be5658d5f6a344fcbad216ee0901d2.js"></script>
+
+    <!-- FIREBASE & APP LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAxyP7IwzeVxX5caKcipR2ucuAnMfiv_Mg",
+          authDomain: "stream-verse-4b441.firebaseapp.com",
+          databaseURL: "https://stream-verse-4b441-default-rtdb.firebaseio.com",
+          projectId: "stream-verse-4b441",
+          storageBucket: "stream-verse-4b441.firebasestorage.app",
+          messagingSenderId: "768479706148",
+          appId: "1:768479706148:web:452dbd470e1ac6a8b9acb1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Global Variables
+        let allMovies = [];
+        let currentPlayingMovie = null; // Store currently selected movie object
+        let adInterval = null;
+
+        // --- FETCH DATA ---
+        const moviesRef = ref(db, 'movies');
+        onValue(moviesRef, (snapshot) => {
+            const data = snapshot.val();
+            const grid = document.getElementById('contentGrid');
+            
+            if (data) {
+                allMovies = Object.entries(data).map(([key, value]) => ({ 
+                    id: key, 
+                    ...value 
+                })).reverse();
+                
+                // Show Published items only
+                const publishedMovies = allMovies.filter(m => m.status === 'Published');
+
+                if(publishedMovies.length > 0) {
+                    setupHero(publishedMovies[0]);
+                    renderContent(publishedMovies);
+                } else {
+                    grid.innerHTML = `<div class="col-span-full text-center text-gray-500 py-10">No content available.</div>`;
+                }
+            } else {
+                grid.innerHTML = `<div class="col-span-full text-center text-gray-500 py-10">No content found.</div>`;
+            }
+        });
+
+        // --- EXPOSED FUNCTIONS ---
+        
+        window.renderContent = (movies) => {
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = "";
+
+            if(movies.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-gray-500 mt-10">No results found.</div>`;
+                return;
+            }
+
+            movies.forEach(movie => {
+                const img = movie.image || "https://via.placeholder.com/300x450/111/333?text=No+Poster";
+                const blurClass = movie.category === "18+" ? "blur-sm hover:blur-none transition duration-300" : "";
+                
+                grid.innerHTML += `
+                    <div onclick="openPlayer('${movie.id}')" class="cursor-pointer group">
+                        <div class="relative h-48 md:h-64 rounded-lg overflow-hidden bg-gray-800 mb-2 border border-gray-800 group-hover:border-gray-600 transition">
+                            <img src="${img}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 ${blurClass}">
+                            <div class="absolute top-2 left-2 bg-black/80 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-gray-700">
+                                ${movie.category || 'Movie'}
+                            </div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                                <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-lg"><i class="fa-solid fa-play text-white ml-1"></i></div>
+                            </div>
+                        </div>
+                        <h3 class="text-sm font-semibold truncate text-gray-100">${movie.title}</h3>
+                        <p class="text-[10px] text-gray-500">${movie.language} • ${movie.date}</p>
+                    </div>
+                `;
+            });
+        }
+
+        window.setupHero = (movie) => {
+            if(!movie) return;
+            const heroSection = document.getElementById('heroSection');
+            heroSection.classList.remove('hidden');
+            document.getElementById('heroImg').src = movie.image;
+            document.getElementById('heroTitle').innerText = movie.title;
+            heroSection.dataset.id = movie.id;
+        }
+
+        window.playFeatured = () => {
+            const id = document.getElementById('heroSection').dataset.id;
+            openPlayer(id);
+        }
+
+        // --- FILTER LOGIC (Fixed Arguments) ---
+        window.filterContent = (btnElement, cat) => {
+            document.querySelectorAll('.cat-chip').forEach(btn => {
+                btn.classList.remove('bg-red-600', 'text-white');
+                btn.classList.add('bg-gray-800', 'text-gray-300');
+            });
+            btnElement.classList.remove('bg-gray-800', 'text-gray-300');
+            btnElement.classList.add('bg-red-600', 'text-white');
+
+            const publishedMovies = allMovies.filter(m => m.status === 'Published');
+
+            if(cat === 'All') renderContent(publishedMovies);
+            else renderContent(publishedMovies.filter(m => m.category === cat));
+        }
+
+        // --- SEARCH LOGIC ---
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('keyup', (e) => {
+            const query = e.target.value.toLowerCase();
+            const publishedMovies = allMovies.filter(m => m.status === 'Published');
+            const filtered = publishedMovies.filter(m => m.title.toLowerCase().includes(query));
+            renderContent(filtered);
+        });
+
+        document.getElementById('openSearchBtn').addEventListener('click', () => {
+            document.getElementById('searchContainer').classList.remove('hidden');
+            document.getElementById('searchContainer').classList.add('flex');
+            document.getElementById('navLogo').classList.add('hidden');
+            document.getElementById('navIcons').classList.add('hidden');
+            searchInput.focus();
+        });
+
+        document.getElementById('closeSearchBtn').addEventListener('click', () => {
+            document.getElementById('searchContainer').classList.add('hidden');
+            document.getElementById('searchContainer').classList.remove('flex');
+            document.getElementById('navLogo').classList.remove('hidden');
+            document.getElementById('navIcons').classList.remove('hidden');
+            searchInput.value = "";
+            renderContent(allMovies.filter(m => m.status === 'Published'));
+        });
+
+        // --- PLAYER LOGIC (Fixed) ---
+        window.openPlayer = (id) => {
+            const movie = allMovies.find(m => m.id === id);
+            if(!movie) return;
+
+            currentPlayingMovie = movie; // Store for Skip Button
+
+            const modal = document.getElementById('videoModal');
+            const adContainer = document.getElementById('adContainer');
+            const wrapper = document.getElementById('playerWrapper');
+
+            wrapper.innerHTML = ''; // Clear previous
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Show Ad
+            adContainer.classList.remove('hidden');
+            adContainer.classList.add('flex');
+            startAdTimer();
+        }
+
+        function startAdTimer() {
+            let timeLeft = 5;
+            const timerText = document.getElementById('adCount');
+            const skipBtn = document.getElementById('skipBtn');
+            const timerLabel = document.getElementById('adTimerText');
+
+            skipBtn.classList.add('hidden');
+            timerLabel.classList.remove('hidden');
+            timerText.innerText = timeLeft;
+
+            if (adInterval) clearInterval(adInterval);
+
+            adInterval = setInterval(() => {
+                timeLeft--;
+                timerText.innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(adInterval);
+                    timerLabel.classList.add('hidden');
+                    skipBtn.classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        // Fixed Skip Function (Uses global variable instead of arguments)
+        window.skipAd = () => {
+            document.getElementById('adContainer').classList.add('hidden');
+            if(currentPlayingMovie) {
+                injectVideo(currentPlayingMovie);
+            }
+        }
+
+        function injectVideo(movie) {
+            const wrapper = document.getElementById('playerWrapper');
+            
+            // 1. Check Embed Script
+            if (movie.embedCode && movie.embedCode.trim().length > 10) {
+                wrapper.innerHTML = movie.embedCode;
+            } 
+            // 2. Check Video URL
+            else if (movie.videoUrl) {
+                if(movie.videoUrl.endsWith('.mp4') || movie.videoUrl.endsWith('.mkv')) {
+                    wrapper.innerHTML = `
+                        <video id="htmlVideo" controls class="w-full h-full" autoplay>
+                            <source src="${movie.videoUrl}" type="video/mp4">
+                            Your browser does not support video.
+                        </video>`;
+                } else {
+                    wrapper.innerHTML = `
+                        <iframe class="w-full h-full" src="${movie.videoUrl}" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+                    `;
+                }
+            } else {
+                wrapper.innerHTML = `<p class="text-gray-500">Source not available</p>`;
+            }
+        }
+
+        window.closePlayer = () => {
+            const modal = document.getElementById('videoModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            
+            document.getElementById('playerWrapper').innerHTML = ""; // Stop video
+            document.getElementById('adContainer').classList.add('hidden');
+            if (adInterval) clearInterval(adInterval);
+            currentPlayingMovie = null;
+        }
+
+        // --- NAVIGATION & UI ---
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            
+            if(tabName === 'home') document.getElementById('viewHome').classList.remove('hidden');
+            if(tabName === 'downloads') document.getElementById('viewDownloads').classList.remove('hidden');
+            if(tabName === 'settings') document.getElementById('viewSettings').classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-red-500');
+                btn.classList.add('text-gray-500');
+            });
+            document.getElementById(`btn-${tabName}`).classList.add('text-red-500');
+            
+            const filterBar = document.getElementById('categoryFilter');
+            if(tabName === 'home') filterBar.classList.remove('hidden');
+            else filterBar.classList.add('hidden');
+        }
+
+        window.openProfile = () => {
+            document.getElementById('profileModal').classList.remove('hidden');
+            document.getElementById('profileModal').classList.add('flex');
+        }
+        window.closeProfile = () => {
+            document.getElementById('profileModal').classList.add('hidden');
+            document.getElementById('profileModal').classList.remove('flex');
+        }
+
+    </script>
+</body>
+</html>    
